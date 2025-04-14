@@ -138,7 +138,9 @@ def main():
 
     # train final pipeline on whole dataset
     print("\nTraining Final Pipeline on Full Data:")
-    pipeline = build_pipeline()
+    contamination = np.sum(y_true) / len(y_true)  # calculate contamination rate
+    print(f"Contamination Rate: {contamination:.4f}")
+    pipeline = build_pipeline(contamination=contamination)
     pipeline.fit(X)
     print("Pipeline fitted")
 
