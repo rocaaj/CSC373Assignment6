@@ -16,6 +16,7 @@ Author: Dario Santiago Lopez, Anthony Roca, and ChatGPT
 Date: April 14, 2025
 """
 import pandas as pd
+import numpy as np
 from scipy.io import arff
 
 # load data
@@ -28,9 +29,22 @@ def load_arff_data(filepath):
 
 # split features and labels
 def prepare_data(df, target_column="class", drop_duplicates=True):
+    # drop duplicates based only on feature columns
     if drop_duplicates:
-        df = df.drop_duplicates()
+        before = len(df)
+        df = df.drop_duplicates(subset=df.columns.difference([target_column]))
+        after = len(df)
+        print(f"🧹 Dropped {before - after} duplicates (excluding target column).")
 
-    X = df.drop(columns=[target_column])
+    # convert features to integers
+    X = df.drop(columns=[target_column]).astype(int)
+
+    # convert target labels to binary: -1 → 0, 1 → 1
     y = df[target_column].astype(int)
+    y = np.where(y == -1, 0, 1)
+
+    # log class distribution
+    print(f"Cleaned data shape: {df.shape}")
+    print(f"Class distribution: {pd.Series(y).value_counts().to_dict()}")
+
     return X, y
