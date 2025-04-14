@@ -123,6 +123,7 @@ def main():
     print("Loading Data...")
     df = utils.load_arff_data(data_path)
     X, y_true = utils.prepare_data(df)
+    X = X.astype(int)
     y_true = np.where(y_true == -1, 0, 1)  # convert labels to 0 = non-bald, 1 = bald
 
     # run baseline dummy
