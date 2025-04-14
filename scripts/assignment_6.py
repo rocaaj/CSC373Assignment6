@@ -32,7 +32,7 @@ from sklearn.model_selection import StratifiedKFold
 
 def build_pipeline(contamination, random_state=42):
     num_features = 39  # manually set to match dataset structure
-    encoder = OrdinalEncoder(categories=[[0, 1]] * num_features) # hard mapping to avoid flipped labels
+    encoder = OrdinalEncoder(categories=[[-1, 1]] * num_features) # hard mapping to avoid flipped labels
     pipeline = Pipeline([
         ("encoder", encoder),
         ("model", IsolationForest(contamination=contamination, random_state=random_state))
