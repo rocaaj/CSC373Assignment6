@@ -19,9 +19,11 @@ def gen_report(df):
     """
     Generates a report of the dataset.
     """
+    target_col = df.columns[-1]
+
     report = "Data description:\n" + f"Shape: {df.shape}\n"
     report += "Columns:\n" + ", ".join(df.columns) + "\n"
-    report += "Class Distribution:\n" + df['bald'].value_counts().to_string() + "\n"
+    report += f"Class Distribution ({target_col}):\n" + df[target_col].value_counts().to_string() + "\n"
     report += f"Duplicated rows: {df.duplicated().sum()}\n" + f"Number of rows with missing values: {df.isnull().any(axis=1).sum()}\n"
     report += f"Number of columns with missing values: {df.isnull().any(axis=0).sum()}\n\n" + f"{df.dtypes.to_string()}\n\n" + f"{df.describe().T.to_string()}\n"
     return report
