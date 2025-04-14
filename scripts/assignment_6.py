@@ -66,7 +66,7 @@ def cross_validate_pipeline(contamination, X, y_true, output_dir, n_splits=5):
         y_val = y_true.iloc[val_idx]
 
         start = time.time()
-        pipeline = build_pipeline()
+        pipeline = build_pipeline(contamination)
         pipeline.fit(X_train)
         end = time.time()
 
