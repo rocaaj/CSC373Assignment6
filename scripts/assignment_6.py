@@ -1,3 +1,20 @@
+"""
+assignment_6.py - Data Mining Pipeline for CelebA Bald vs. Non-Bald Anomaly Detection
+
+This script implements the full data mining workflow for the CelebA dataset anomaly detection
+assignment. The pipeline is based on an Isolation Forest and consists of the following steps:
+
+    - Load the dataset from an ARFF file and prepare features and labels.
+    - Evaluate a baseline dummy model that always predicts the majority class.
+    - Perform k-fold cross-validation to assess the performance of the pipeline.
+    - Train a final pipeline on the full dataset and predict on the same.
+    - Evaluate the final predictions using confusion matrix, classification report, and ROC AUC score.
+    - Save cross-validation results, evaluation plots, and the final trained pipeline for future predictions.
+
+Author: Dario Santiago Lopez, Anthony Roca, and ChatGPT
+Date: April 14, 2025
+"""
+
 import os
 import joblib
 import numpy as np
