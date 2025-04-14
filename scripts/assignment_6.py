@@ -103,20 +103,30 @@ def main():
     os.makedirs(output_dir, exist_ok=True)
 
     # load and prep data
+    print("Loading Data...")
     df = utils.load_arff_data(data_path)
     X, y_true = utils.prepare_data(df)
     y_true = np.where(y_true == -1, 0, 1)  # convert labels to 0 = non-bald, 1 = bald
 
     # run baseline dummy
-    baseline_dummy_model(y_true)
+    print("\nBaseline Model Evaluation:")
+    baseline_report, baseline_auc = baseline_dummy_model(y_true)
+    print(f"Baseline AUC: {baseline_auc:.4f}")
+    print("\nBaseline Report:")
+    print(baseline_report)
 
     # run k-fold validation w logging
+    print("\nK-Fold Cross Validation:")
     cross_validate_pipeline(pd.DataFrame(X), pd.Series(y_true), output_dir, n_splits=5)
 
     # train final pipeline on whole dataset
+    print("\nTraining Final Pipeline on Full Data:")
     pipeline = build_pipeline()
     pipeline.fit(X)
+    print("Pipeline fitted")
 
+    # predict on full data
+    print("\nPredicting on Full Data:")
     y_pred = pipeline.predict(X)
     y_pred = np.where(y_pred == -1, 0, 1)  # convert to 0 = non-bald, 1 = bald
 
@@ -124,6 +134,7 @@ def main():
     evaluate(y_true, y_pred)
 
     # save final pipeline
+    print("\nSaving Final Pipeline:")
     model_path = os.path.join(output_dir, "isolation_forest_pipeline.joblib")
     joblib.dump(pipeline, model_path)
     print(f"Full pipeline saved to {model_path}")
