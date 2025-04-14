@@ -32,7 +32,7 @@ from sklearn.model_selection import StratifiedKFold
 
 def build_pipeline(contamination, random_state=42):
     num_features = 39  # manually set to match dataset structure
-    encoder = OrdinalEncoder(categories=[[-1, 1]] * num_features) # hard mapping to avoid flipped labels
+    encoder = OrdinalEncoder(categories=[[0, 1]] * num_features) # hard mapping to avoid flipped labels
     pipeline = Pipeline([
         ("encoder", encoder),
         ("model", IsolationForest(contamination=contamination, random_state=random_state))
@@ -47,7 +47,6 @@ def evaluate(y_true, y_pred):
 
 def baseline_dummy_model(y_true):
     print("\nBaseline Dummy Model Evaluation:")
-    y_true = np.where(y_true == -1, 0, 1)  # convert to 0 (non-bald), 1 (bald)
     y_pred = np.zeros_like(y_true)  # always predict non-bald (0)
     evaluate(y_true, y_pred)
     report = classification_report(y_true, y_pred, output_dict=True)
@@ -72,7 +71,7 @@ def cross_validate_pipeline(contamination, X, y_true, output_dir, n_splits=5):
         end = time.time()
 
         y_pred = pipeline.predict(X_val)
-        y_pred = np.where(y_pred == -1, 0, 1)  # convert to 0 = non-bald, 1 = bald
+        y_pred = np.where(y_pred == -1, 1, 0)
         y_val_bin = np.where(y_val == -1, 0, 1)
 
         evaluate(y_val_bin, y_pred)
@@ -124,7 +123,6 @@ def main():
     df = utils.load_arff_data(data_path)
     X, y_true = utils.prepare_data(df)
     X = X.astype(int)
-    y_true = np.where(y_true == -1, 0, 1)  # convert labels to 0 = non-bald, 1 = bald
 
     # run baseline dummy
     print("\nBaseline Model Evaluation:")
@@ -149,7 +147,7 @@ def main():
     # predict on full data
     print("\nPredicting on Full Data:")
     y_pred = pipeline.predict(X)
-    y_pred = np.where(y_pred == -1, 0, 1)  # convert to 0 = non-bald, 1 = bald
+    y_pred = np.where(y_pred == -1, 1, 0)  # convert to 1 = bald, 0 = non-bald
 
     print("\nFinal Evaluation on Full Data:")
     evaluate(y_true, y_pred)
