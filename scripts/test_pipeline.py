@@ -38,11 +38,11 @@ def evaluate_predictions(df, output_path):
         auc = roc_auc_score(y_true, y_pred)
         print(f"AUC Score: {auc:.4f}")
 
-        # Save classification metrics and plot
+        # save classification metrics and plot
         report = classification_report(y_true, y_pred, output_dict=True)
         f1 = report["1"]["f1-score"] if "1" in report else 0
 
-        # Plot prediction counts
+        # plot prediction counts
         plt.figure(figsize=(6, 4))
         df["prediction"].value_counts().sort_index().plot(kind="bar", color="skyblue")
         plt.title("Prediction Distribution")
@@ -56,7 +56,7 @@ def evaluate_predictions(df, output_path):
 
         return auc, f1
     else:
-        print("⚠️ No ground truth available for evaluation.")
+        print("No ground truth available for evaluation.")
         return None, None
 
 def run_prediction(pipeline_path, df, filename_prefix="predictions"):
