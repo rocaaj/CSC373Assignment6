@@ -65,6 +65,11 @@ def cross_validate_pipeline(contamination, X, y_true, output_dir, n_splits=5):
         X_train, X_val = X.iloc[train_idx], X.iloc[val_idx]
         y_val = y_true.iloc[val_idx]
 
+        unique_classes = np.unique(y_val)
+        if len(unique_classes) < 2:
+            print(f"Fold {i+1} contains only one class. Skipping evaluation.")
+            continue
+
         start = time.time()
         pipeline = build_pipeline(contamination)
         pipeline.fit(X_train)
@@ -77,7 +82,13 @@ def cross_validate_pipeline(contamination, X, y_true, output_dir, n_splits=5):
         evaluate(y_val_bin, y_pred)
 
         report = classification_report(y_val_bin, y_pred, output_dict=True)
-        auc = roc_auc_score(y_val_bin, y_pred)
+        
+        try:
+            auc = roc_auc_score(y_val, y_pred)
+        except ValueError:
+            auc = np.nan
+            print(f"Skipping AUC in Fold {i+1}: Only one class present in y_true.")
+
 
         results.append({
             "fold": i + 1,
@@ -90,6 +101,8 @@ def cross_validate_pipeline(contamination, X, y_true, output_dir, n_splits=5):
             "contamination": contamination,
             "random_state": 42
         })
+        print(f"Completed {len(results)} valid folds (out of {n_splits})")
+
 
     results_df = pd.DataFrame(results)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")

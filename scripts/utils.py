@@ -34,7 +34,7 @@ def prepare_data(df, target_column="class", drop_duplicates=True):
         before = len(df)
         df = df.drop_duplicates(subset=df.columns.difference([target_column]))
         after = len(df)
-        print(f"🧹 Dropped {before - after} duplicates (excluding target column).")
+        print(f"Dropped {before - after} duplicates (excluding target column).")
 
     # convert features to integers
     X = df.drop(columns=[target_column]).astype(int)
