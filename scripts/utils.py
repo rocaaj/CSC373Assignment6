@@ -1,3 +1,6 @@
+import pandas as pd
+from scipy.io import arff
+
 # load data
 def load_arff_data(filepath):
     data, _ = arff.loadarff(filepath)
