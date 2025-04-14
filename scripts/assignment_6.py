@@ -141,7 +141,7 @@ def main():
     # train final pipeline on whole dataset
     print("\nTraining Final Pipeline on Full Data:")
     print(f"Contamination Rate: {contamination:.4f}")
-    pipeline = build_pipeline(contamination=contamination, random_state=42)
+    pipeline = build_pipeline(contamination)
     pipeline.fit(X)
     print("Pipeline fitted")
 
