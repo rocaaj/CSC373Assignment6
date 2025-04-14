@@ -1,0 +1,94 @@
+Data description:
+Shape: (202599, 40)
+Columns:
+att1, att2, att3, att4, att5, att6, att7, att8, att9, att10, att11, att12, att13, att14, att15, att16, att17, att18, att19, att20, att21, att22, att23, att24, att25, att26, att27, att28, att29, att30, att31, att32, att33, att34, att35, att36, att37, att38, att39, class
+Class Distribution (class):
+class
+-1    198052
+1       4547
+Duplicated rows: 87484
+Number of rows with missing values: 0
+Number of columns with missing values: 0
+
+att1     object
+att2     object
+att3     object
+att4     object
+att5     object
+att6     object
+att7     object
+att8     object
+att9     object
+att10    object
+att11    object
+att12    object
+att13    object
+att14    object
+att15    object
+att16    object
+att17    object
+att18    object
+att19    object
+att20    object
+att21    object
+att22    object
+att23    object
+att24    object
+att25    object
+att26    object
+att27    object
+att28    object
+att29    object
+att30    object
+att31    object
+att32    object
+att33    object
+att34    object
+att35    object
+att36    object
+att37    object
+att38    object
+att39    object
+class    object
+
+        count unique top    freq
+att1   202599      2  -1  180083
+att2   202599      2  -1  148509
+att3   202599      2   1  103833
+att4   202599      2  -1  161153
+att5   202599      2  -1  171890
+att6   202599      2  -1  153814
+att7   202599      2  -1  155083
+att8   202599      2  -1  154127
+att9   202599      2  -1  172616
+att10  202599      2  -1  192287
+att11  202599      2  -1  161027
+att12  202599      2  -1  173796
+att13  202599      2  -1  190936
+att14  202599      2  -1  193140
+att15  202599      2  -1  189406
+att16  202599      2  -1  189883
+att17  202599      2  -1  194100
+att18  202599      2  -1  124209
+att19  202599      2  -1  110410
+att20  202599      2  -1  118162
+att21  202599      2  -1  104657
+att22  202599      2  -1  194182
+att23  202599      2  -1  179270
+att24  202599      2   1  169158
+att25  202599      2  -1  145032
+att26  202599      2  -1  193898
+att27  202599      2  -1  146389
+att28  202599      2  -1  186436
+att29  202599      2  -1  189284
+att30  202599      2  -1  191150
+att31  202599      2  -1  104930
+att32  202599      2  -1  160377
+att33  202599      2  -1  137855
+att34  202599      2  -1  164323
+att35  202599      2  -1  192781
+att36  202599      2  -1  106884
+att37  202599      2  -1  177686
+att38  202599      2  -1  187867
+att39  202599      2   1  156734
+class  202599      2  -1  198052
