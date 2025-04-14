@@ -30,7 +30,7 @@ from sklearn.metrics import classification_report, confusion_matrix, roc_auc_sco
 from sklearn.model_selection import StratifiedKFold
 
 
-def build_pipeline(contamination=0.0224, random_state=42):
+def build_pipeline(contamination, random_state=42):
     num_features = 39  # manually set to match dataset structure
     encoder = OrdinalEncoder(categories=[[-1, 1]] * num_features) # hard mapping to avoid flipped labels
     pipeline = Pipeline([
@@ -55,7 +55,7 @@ def baseline_dummy_model(y_true):
     print(f"Baseline AUC: {auc:.4f}")
     return report, auc
 
-def cross_validate_pipeline(X, y_true, output_dir, n_splits=5):
+def cross_validate_pipeline(contamination, X, y_true, output_dir, n_splits=5):
     skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=42)
     print(f"\nRunning {n_splits}-Fold Cross Validation...")
 
@@ -88,7 +88,7 @@ def cross_validate_pipeline(X, y_true, output_dir, n_splits=5):
             "support": report["1"]["support"],
             "auc": auc,
             "runtime_sec": round(end - start, 2),
-            "contamination": 0.0224,
+            "contamination": contamination,
             "random_state": 42
         })
 
@@ -132,15 +132,16 @@ def main():
     print("\nBaseline Report:")
     print(baseline_report)
 
+    contamination = np.sum(y_true) / len(y_true)  # calculate contamination rate
+
     # run k-fold validation w logging
     print("\nK-Fold Cross Validation:")
-    cross_validate_pipeline(pd.DataFrame(X), pd.Series(y_true), output_dir, n_splits=5)
+    cross_validate_pipeline(contamination, pd.DataFrame(X), pd.Series(y_true), output_dir, n_splits=5)
 
     # train final pipeline on whole dataset
     print("\nTraining Final Pipeline on Full Data:")
-    contamination = np.sum(y_true) / len(y_true)  # calculate contamination rate
     print(f"Contamination Rate: {contamination:.4f}")
-    pipeline = build_pipeline(contamination=contamination)
+    pipeline = build_pipeline(contamination=contamination, random_state=42)
     pipeline.fit(X)
     print("Pipeline fitted")
 
