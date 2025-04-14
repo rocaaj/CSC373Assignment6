@@ -26,7 +26,7 @@ import matplotlib.pyplot as plt
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OrdinalEncoder
 from sklearn.ensemble import IsolationForest
-from sklearn.metrics import classification_report, confusion_matrix, roc_auc_score
+from sklearn.metrics import classification_report, confusion_matrix, roc_auc_score, roc_curve
 from sklearn.model_selection import StratifiedKFold
 
 
@@ -75,20 +75,20 @@ def cross_validate_pipeline(contamination, X, y_true, output_dir, n_splits=5):
         pipeline.fit(X_train)
         end = time.time()
 
-        y_pred = pipeline.predict(X_val)
-        y_pred = np.where(y_pred == -1, 1, 0)
-        y_val_bin = np.where(y_val == -1, 0, 1)
+        # get decision scores
+        scores = pipeline.decision_function(X_val)
+        threshold = np.percentile(scores, 8)  # threshold tuning to catch more TPs
+        y_pred = (scores < threshold).astype(int)
 
-        evaluate(y_val_bin, y_pred)
+        evaluate(y_val, y_pred)
 
-        report = classification_report(y_val_bin, y_pred, output_dict=True)
-        
+        report = classification_report(y_val, y_pred, output_dict=True)
+
         try:
             auc = roc_auc_score(y_val, y_pred)
         except ValueError:
             auc = np.nan
             print(f"Skipping AUC in Fold {i+1}: Only one class present in y_true.")
-
 
         results.append({
             "fold": i + 1,
@@ -102,7 +102,6 @@ def cross_validate_pipeline(contamination, X, y_true, output_dir, n_splits=5):
             "random_state": 42
         })
         print(f"Completed {len(results)} valid folds (out of {n_splits})")
-
 
     results_df = pd.DataFrame(results)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -122,6 +121,7 @@ def cross_validate_pipeline(contamination, X, y_true, output_dir, n_splits=5):
     plt.savefig(plot_path)
     plt.close()
     print(f"F1-score plot saved to {plot_path}")
+
 
 def main():
     start_time = time.time()
@@ -157,10 +157,12 @@ def main():
     pipeline.fit(X)
     print("Pipeline fitted")
 
-    # predict on full data
-    print("\nPredicting on Full Data:")
-    y_pred = pipeline.predict(X)
-    y_pred = np.where(y_pred == -1, 1, 0)  # convert to 1 = bald, 0 = non-bald
+    # get anomaly scores (higher = more normal)
+    scores = pipeline.decision_function(X)
+
+    # lower threshold = label more samples as anomalies
+    threshold = np.percentile(scores, 8)  # top 8% most anomalous
+    y_pred = (scores < threshold).astype(int)  # 1 = bald (anomaly), 0 = non-bald
 
     print("\nFinal Evaluation on Full Data:")
     evaluate(y_true, y_pred)
@@ -173,6 +175,31 @@ def main():
 
     end_time = time.time()
     print(f"\nTotal Runtime: {end_time - start_time:.2f} seconds")
+
+    plot_path = os.path.join(output_dir, f"roc_auc_curve.png")
+
+    # compute ROC curve
+    fpr, tpr, thresholds = roc_curve(y_true, scores)
+
+    # plot ROC curve
+    plt.figure(figsize=(8, 6))
+    plt.plot(fpr, tpr, label="ROC Curve")
+    plt.plot([0, 1], [0, 1], linestyle="--", color="gray", label="Random Guess")
+    plt.xlabel("False Positive Rate")
+    plt.ylabel("True Positive Rate")
+    plt.title("ROC Curve for Isolation Forest Anomaly Scores")
+    plt.legend()
+
+    # mark the currently selected threshold
+    score_threshold = np.percentile(scores, 8)
+    closest_idx = np.argmin(np.abs(thresholds - score_threshold))
+    plt.scatter(fpr[closest_idx], tpr[closest_idx], color='red', label='Chosen Threshold')
+    plt.legend()
+    plt.grid(True)
+    plt.savefig(plot_path)
+    plt.show()
+
+
 
 if __name__ == "__main__":
     main()
