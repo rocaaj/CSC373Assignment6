@@ -3,14 +3,20 @@ import time
 import joblib
 import numpy as np
 import pandas as pd
+import utils
 import matplotlib.pyplot as plt
 from sklearn.pipeline import Pipeline
 from sklearn.svm import LinearSVC
 from sklearn.ensemble import IsolationForest
 from sklearn.preprocessing import OrdinalEncoder
-from sklearn.metrics import classification_report, confusion_matrix, roc_auc_score
+from sklearn.metrics import (
+    classification_report,
+    confusion_matrix,
+    roc_auc_score,
+    precision_recall_curve,
+    average_precision_score
+)
 from sklearn.model_selection import train_test_split
-import utils
 
 
 def evaluate(y_true, y_pred):
@@ -18,6 +24,22 @@ def evaluate(y_true, y_pred):
     print(confusion_matrix(y_true, y_pred))
     print("\nClassification Report:")
     print(classification_report(y_true, y_pred))
+
+
+def plot_precision_recall_curve(y_true, scores):
+    precision, recall, _ = precision_recall_curve(y_true, scores)
+    avg_precision = average_precision_score(y_true, scores)
+
+    plt.figure(figsize=(8, 5))
+    plt.plot(recall, precision, label=f"Avg Precision = {avg_precision:.4f}")
+    plt.xlabel("Recall")
+    plt.ylabel("Precision")
+    plt.title("Precision-Recall Curve for Hybrid Model")
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+    plt.savefig("../output/pr_curve_hybrid_model.png")
+    plt.show()
 
 
 def main():
@@ -32,10 +54,10 @@ def main():
     X, y = utils.prepare_data(df)
     X = X.astype(int)
 
-    encoder = OrdinalEncoder(categories=[[0, 1]] * 39, handle_unknown="use_encoded_value", unknown_value=-1)
+    encoder = OrdinalEncoder(categories=[[0, 1]] * 39)
     X_encoded = encoder.fit_transform(X)
 
-    # First stage: Isolation Forest for high-confidence anomalies
+    # first stage: iso forest for high-confidence anomalies
     print("Running Isolation Forest...")
     isolation_forest = IsolationForest(contamination=0.0255, random_state=42)
     isolation_forest.fit(X_encoded)
@@ -48,7 +70,7 @@ def main():
     y_anomalies = y[anomaly_mask]
     print(f"Detected {len(X_anomalies)} anomalies using Isolation Forest")
 
-    # Second stage: Linear SVM on the rest
+    # second stage: lin SVM on the rest
     X_remaining = X_encoded[~anomaly_mask]
     y_remaining = y[~anomaly_mask]
 
@@ -56,7 +78,7 @@ def main():
     svm = LinearSVC(class_weight="balanced", random_state=42, max_iter=5000)
     svm.fit(X_remaining, y_remaining)
 
-    # Make predictions
+    # make predictions
     y_pred_if = np.ones_like(y)  # default: all bald
     y_pred_if[anomaly_mask] = 1  # IF predicts bald
     y_pred_if[~anomaly_mask] = svm.predict(X_remaining)
@@ -64,13 +86,20 @@ def main():
     print("\nEvaluation on Full Dataset:")
     evaluate(y, y_pred_if)
 
-    auc = roc_auc_score(y, y_pred_if)
-    print(f"AUC: {auc:.4f}")
+    try:
+        auc = roc_auc_score(y, y_pred_if)
+        print(f"AUC: {auc:.4f}")
+    except ValueError:
+        print("AUC could not be calculated: only one class present in prediction or truth")
 
-    # Save both models and encoder
+    # plot precision-recall curve using IF scores only
+    print("\nPlotting Precision-Recall Curve...")
+    plot_precision_recall_curve(y, -scores)  # flip sign for anomaly score (lower = more anomalous)
+
+    # save both models and encoder
     model_path = os.path.join(output_dir, "hybrid_pipeline.joblib")
     joblib.dump((encoder, isolation_forest, svm), model_path)
-    print(f"\n✅ Hybrid model saved to {model_path}")
+    print(f"\nHybrid model saved to {model_path}")
 
     end = time.time()
     print(f"\nTotal Runtime: {end - start:.2f} seconds")

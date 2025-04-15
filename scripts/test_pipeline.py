@@ -19,6 +19,7 @@ import os
 import joblib
 import pandas as pd
 import numpy as np
+from utils
 from datetime import datetime
 import matplotlib.pyplot as plt
 from sklearn.metrics import classification_report, confusion_matrix, roc_auc_score
@@ -101,8 +102,7 @@ if __name__ == "__main__":
 
     try:
         real_data_path = os.path.join("..", "data", "celeba_baldvsnonbald.arff")
-        from utils import load_arff_data
-        real_df = load_arff_data(real_data_path)
+        real_df = utils.load_arff_data(real_data_path)
         real_df = real_df.replace({-1: 0})
         smart_artificial_df = generate_smart_artificial_data(real_df, n_samples=10)
         smart_artificial_df["class"] = 0  # dummy labels for testing (optional)
