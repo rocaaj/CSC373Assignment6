@@ -81,12 +81,18 @@ class HybridClassifier(BaseEstimator, ClassifierMixin):
 
         # get calibrated SVC prediction probabilities for remaining samples
         mask = scores < -self.if_thresh
-        y_scores_svc = self.svc.predict_proba(X_encoded[~mask])[:, 1]
 
         # init array and gen preds
         preds = np.zeros(X.shape[0], dtype=int)
         preds[mask] = 1
-        preds[~mask] = (y_scores_svc >= self.svc_thresh).astype(int)
+
+        # fix for test_pipeline.py
+        if np.sum(~mask) > 0:
+            y_scores_svc = self.svc.predict_proba(X_encoded[~mask])[:, 1]
+            preds[~mask] = (y_scores_svc >= self.svc_thresh).astype(int)
+        else:
+            print("Warning: All test samples flagged as anomalies by Isolation Forest.")
+
         return preds
 
     # return decision scores used in evaluation
