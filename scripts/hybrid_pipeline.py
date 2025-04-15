@@ -1,5 +1,5 @@
 """
-hybrid_model.py - Hybrid Anomaly Detection Pipeline for CelebA Bald vs. Non-Bald Classification
+hybrid_pipeline.py - Hybrid Anomaly Detection Pipeline for CelebA Bald vs. Non-Bald Classification
 
 This script implements a hybrid two-stage machine learning pipeline to detect anomalies 
 (i.e., bald individuals) in the CelebA dataset. The model first applies an Isolation Forest 
