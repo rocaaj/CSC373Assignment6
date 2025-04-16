@@ -23,6 +23,8 @@ Date: April 15, 2025
 import os
 import time
 import joblib
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning, module="sklearn")
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
