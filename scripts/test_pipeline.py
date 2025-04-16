@@ -27,17 +27,6 @@ from hybrid_pipeline import HybridClassifier  # Imported from hybrid_pipeline
 import utils
 
 
-import os
-import joblib
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-from datetime import datetime
-from sklearn.metrics import classification_report, confusion_matrix, roc_auc_score
-from hybrid_pipeline import HybridClassifier  # Imported from hybrid_pipeline
-import utils
-
-
 def generate_artificial_data(n_samples=10, n_features=39):
     """Generates a purely random, synthetic DataFrame matching the structure of the real dataset."""
     data = np.random.choice([0, 1], size=(n_samples, n_features))
