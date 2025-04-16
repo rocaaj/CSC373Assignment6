@@ -1,5 +1,5 @@
 """
-assignment_6.py - Data Mining Pipeline for CelebA Bald vs. Non-Bald Anomaly Detection
+iso_forest.py - Data Mining Pipeline for CelebA Bald vs. Non-Bald Anomaly Detection
 
 This script implements the full data mining workflow for the CelebA dataset anomaly detection
 assignment. The pipeline is based on an Isolation Forest and consists of the following steps:
@@ -21,6 +21,8 @@ import numpy as np
 import pandas as pd
 import utils
 import time
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning, module="sklearn")
 from datetime import datetime
 import matplotlib.pyplot as plt
 from sklearn.pipeline import Pipeline
